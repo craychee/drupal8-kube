@@ -33,7 +33,7 @@ spec:
         emptyDir:
       containers:
         - name: d8-example
-          image: gcr.io/focal-lens-154919/drupal8-kube:latest
+          image: gcr.io/focal-lens-154919/drupal8-kube:7
           ports:
           - name: http-server
             containerPort: 8080
