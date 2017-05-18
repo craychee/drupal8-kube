@@ -1,0 +1,53 @@
+# vim: set ft=yaml:
+# -*- mode: yaml -*-
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: d8-example
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: d8-example
+      state: serving
+
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+
+  template:
+    metadata:
+      labels:
+        app: d8-example
+        state: serving
+    spec:  # specification of the pod's contents
+      restartPolicy: Always
+      volumes:
+      - name: cloudsql-oauth-credentials
+        secret:
+          secretName: cloudsql-oauth-credentials
+      - name: cloudsql
+        emptyDir:
+      containers:
+        - name: d8-example
+          image: gcr.io/focal-lens-154919/drupal8-kube:latest
+          ports:
+          - name: http-server
+            containerPort: 8080
+          env:
+          - name: DRUPAL_DB_NAME
+            value: d8_example
+        - name: cloudsql-proxy
+          image: b.gcr.io/cloudsql-docker/gce-proxy:1.05
+          command: ["/cloud_sql_proxy", "-dir=/cloudsql",
+                    "-instances=focal-lens-154919:us-central1:drupal8-example=tcp:3306",
+                    "-credential_file=/secrets/cloudsql/credentials.json"]
+          volumeMounts:
+          - name: cloudsql-oauth-credentials
+            mountPath: /secrets/cloudsql
+            readOnly: true
+          - name: cloudsql
+            mountPath: /cloudsql
