@@ -6,7 +6,7 @@ kind: Deployment
 metadata:
   name: d8-example
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: d8-example
@@ -31,15 +31,21 @@ spec:
           secretName: cloudsql-oauth-credentials
       - name: cloudsql
         emptyDir:
+      - name: db-pass
+        secret:
+          secretName: db-pass
       containers:
         - name: d8-example
-          image: gcr.io/focal-lens-154919/drupal8-kube:7
+          image: gcr.io/focal-lens-154919/drupal8-kube:8
           ports:
           - name: http-server
             containerPort: 8080
           env:
-          - name: DRUPAL_DB_NAME
-            value: d8_example
+          - name: D8_PASS
+            valueFrom:
+              secretKeyRef:
+                  name: db-pass
+                  key: password.txt
         - name: cloudsql-proxy
           image: b.gcr.io/cloudsql-docker/gce-proxy:1.05
           command: ["/cloud_sql_proxy", "-dir=/cloudsql",
