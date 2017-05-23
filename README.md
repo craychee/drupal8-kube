@@ -2,7 +2,7 @@
 
 
 This is a work-in-progress and a demo only. Not intended for use by anyone but
-the creator aware of the flawed baby she created.
+the creator, who is aware of the flawed baby she created.
 
 ## Getting Started
 
